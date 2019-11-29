@@ -1,12 +1,24 @@
-→ sudo cvt 2560 1080 60                                                                                  
+# Configure LG 29WK600 on Ubuntu
+I bought a LG 29WK600 ultrawide monitor and the native resolution was not supported on Ubuntu. These are the steps I followed to get it working. Mostly thanks to the following video:
+
+[![YouTube video](http://img.youtube.com/vi/LiP-YqtZoNQ/0.jpg)](http://www.youtube.com/watch?v=LiP-YqtZoNQ "Ubuntu : Adding Screen Resolutions")
+
+## Adding a screen resolution
+Create a `Modeline` with `cvt`. Command should be in the format of `cvt <resolution width> <resoltuion height> <refresh rate>`
+```
+→ sudo cvt 2560 1080 60
 # 2560x1080 59.98 Hz (CVT) hsync: 67.17 kHz; pclk: 230.00 MHz
 Modeline "2560x1080_60.00"  230.00  2560 2720 2992 3424  1080 1083 1093 1120 -hsync +vsync
+```
 
-# bryan at bryan-ubuntu in /data/downloads [20:12:29]
+Add the `Modeline` generated above to `xrandr`
+```
 → sudo xrandr --newmode "2560x1080_60.00"  230.00  2560 2720 2992 3424  1080 1083 1093 1120 -hsync +vsync
+```
 
-# bryan at bryan-ubuntu in /data/downloads [20:12:48]
-→ sudo xrandr -q                                                                                         
+Get your monitor device name. In this example, mine is called `HDMI-1`.
+```
+→ sudo xrandr -q
 Screen 0: minimum 320 x 200, current 1920 x 1080, maximum 8192 x 8192
 DP-1 disconnected (normal left inverted right x axis y axis)
 HDMI-1 connected primary 1920x1080+0+0 (normal left inverted right x axis y axis) 798mm x 334mm
@@ -26,17 +38,23 @@ HDMI-1 connected primary 1920x1080+0+0 (normal left inverted right x axis y axis
 HDMI-2 disconnected (normal left inverted right x axis y axis)
 DP-2 disconnected (normal left inverted right x axis y axis)
 HDMI-3 disconnected (normal left inverted right x axis y axis)
-  2560x1080_75.00 (0x1ff) 294.000MHz -HSync +VSync
-        h: width  2560 start 2744 end 3016 total 3472 skew    0 clock  84.68KHz
-        v: height 1080 start 1083 end 1093 total 1130           clock  74.94Hz
   2560x1080_60.00 (0x200) 230.000MHz -HSync +VSync
         h: width  2560 start 2720 end 2992 total 3424 skew    0 clock  67.17KHz
         v: height 1080 start 1083 end 1093 total 1120           clock  59.98Hz
+```
 
-# bryan at bryan-ubuntu in /data/downloads [20:12:54]
-→ sudo xrandr --addmode HDMI-1 2560x1080_60.00                                                           
+Add your previously created mode to your device
+```
+→ sudo xrandr --addmode HDMI-1 2560x1080_60.00
+```
 
-# bryan at bryan-ubuntu in /usr/share/X11/xorg.conf.d [20:30:21]
+You can now set your screen resolution in Ubuntu settings
+<insert screenshot here>
+
+## Making it permanent
+In order for your change to be permanent, it must be added to the `X11` configs.
+In `/usr/share/X11/xorg.conf.d` create a config file containing your new mode and device. Below is an example.
+```
 → cat 10-ultrawide.conf 
 Section "Monitor"
   Identifier "Monitor0"
@@ -52,3 +70,8 @@ Section "Screen"
     Modes "2560x1080"
   EndSubSection
 EndSection
+```
+The only lines from the above file that need editing are:
+1. The `Modeline`
+2. The `Device` name
+3. The screen resolution under `Modes`
