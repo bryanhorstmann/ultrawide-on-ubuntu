@@ -48,30 +48,33 @@ Add your previously created mode to your device
 → sudo xrandr --addmode HDMI-1 2560x1080_60.00
 ```
 
-You can now set your screen resolution in Ubuntu settings
-<insert screenshot here>
+You can now set your screen resolution in Ubuntu settings.
+
+![Screen resolution present in settings](./img/screen_resolution.png)
 
 ## Making it permanent
-In order for your change to be permanent, it must be added to the `X11` configs.
-In `/usr/share/X11/xorg.conf.d` create a config file containing your new mode and device. Below is an example.
+In order for your new screen resolution to be loaded every time you login, you will need to add it to your `.xprofile` file in your home directory.
+
+I use the following script to configure mine. All you need to update are the first three variables.
+
 ```
-→ cat 10-ultrawide.conf 
-Section "Monitor"
-  Identifier "Monitor0"
-  Modeline "2560x1080_60.00"  230.00  2560 2720 2992 3424  1080 1083 1093 1120 -hsync +vsync
-EndSection
-Section "Screen"
-  Identifier "Screen0"
-  Device "HDMI-1"
-  Monitor "Monitor0"
-  DefaultDepth 24
-  SubSection "Display"
-    Depth 24
-    Modes "2560x1080"
-  EndSubSection
-EndSection
+→ cat .xprofile
+#!/bin/sh -ex
+
+## UPDATE HERE ##
+MODE_NAME="2560x1080_60.00"
+MODE="230.00  2560 2720 2992 3424  1080 1083 1093 1120 -hsync +vsync"
+OUTPUT="HDMI-1"
+## DO NOT CHANGE ANYTHING BELOW THIS LINE ##
+
+CONNECTED_OUTPUT=$(xrandr --current | grep -i ${OUTPUT} | cut -f2 -d' ')
+
+if [ "${CONNECTED_OUTPUT}" == "connected" ];
+then
+    xrandr --newmode "${MODE_NAME}" ${MODE}
+    xrandr --addmode ${OUTPUT} "${MODE_NAME}"
+    xrandr --output ${OUTPUT} --mode "${MODE_NAME}"
+else
+   echo "${MODE_NAME} IS NOT DETECTED !"
+fi
 ```
-The only lines from the above file that need editing are:
-1. The `Modeline`
-2. The `Device` name
-3. The screen resolution under `Modes`
