@@ -59,7 +59,7 @@ I use the following script to configure mine. All you need to update are the fir
 
 ```
 → cat .xprofile
-#!/bin/sh -ex
+#!/bin/bash
 
 ## UPDATE HERE ##
 MODE_NAME="2560x1080_60.00"
@@ -71,10 +71,11 @@ CONNECTED_OUTPUT=$(xrandr --current | grep -i ${OUTPUT} | cut -f2 -d' ')
 
 if [ "${CONNECTED_OUTPUT}" == "connected" ];
 then
+    # SET 2560x1080 60Hz
     xrandr --newmode "${MODE_NAME}" ${MODE}
-    xrandr --addmode ${OUTPUT} "${MODE_NAME}"
-    xrandr --output ${OUTPUT} --mode "${MODE_NAME}"
+    xrandr --addmode ${OUTPUT} ${MODE_NAME}
+    xrandr --output ${OUTPUT} --mode ${MODE_NAME}
 else
-   echo "${MODE_NAME} IS NOT DETECTED !"
+    echo "${MODE_NAME} IS NOT DETECTED !"
 fi
 ```
